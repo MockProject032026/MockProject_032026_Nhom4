@@ -1,0 +1,83 @@
+<body>
+  <div class="jm-wrapper">
+    <div class="jm-header">
+        <div class="jm-title-block">
+            <h1>Journal Entries</h1>
+            <p>Centralized management and search of all notary journal records</p>
+        </div>
+        <div class="jm-actions">
+            <div class="jm-search-box">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="jm-search" placeholder="Search entries, signers...">
+            </div>
+            <button class="jm-btn-outline">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                Export CSV
+            </button>
+            <button class="jm-btn-primary">+ New Entry</button>
+        </div>
+    </div>
+
+    <div class="jm-filters">
+        <div class="jm-filter-group">
+            <label>STATUS</label>
+            <select><option>All Statuses</option></select>
+        </div>
+        <div class="jm-filter-group">
+            <label>DATE RANGE</label>
+            <div class="jm-input-with-icon">
+                <input type="text" value="Last 30 Days" readonly>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            </div>
+        </div>
+        <div class="jm-filter-group">
+            <label>ACT TYPE</label>
+            <select><option>All Acts</option></select>
+        </div>
+        <div class="jm-filter-group">
+            <label>NOTARY</label>
+            <input type="text" placeholder="Name or ID">
+        </div>
+        <div class="jm-filter-group">
+            <label>STATE</label>
+            <select><option>All States</option></select>
+        </div>
+        <div class="jm-filter-group" style="justify-content: flex-end;">
+            <button class="jm-btn-clear">Clear All</button>
+        </div>
+    </div>
+
+    <div class="jm-table-container">
+        <table class="jm-table">
+            <thead>
+                <tr>
+                    <th>ENTRY ID</th>
+                    <th>DATE/TIME</th>
+                    <th>NOTARY</th>
+                    <th>ACT TYPE</th>
+                    <th>SIGNER NAME</th>
+                    <th>FEE</th>
+                    <th>STATUS</th>
+                    <th>RISK FLAGS</th>
+                    <th>ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody id="jm-tbody">
+                </tbody>
+        </table>
+        
+        <div class="jm-pagination-footer">
+            <span class="jm-info" id="jm-table-info">Showing 1 to 5 of 1,248 entries</span>
+            <div class="jm-pagination">
+                <button id="jm-btn-prev" class="jm-page-btn">&lt;</button>
+                <button class="jm-page-btn active">1</button>
+                <button class="jm-page-btn">2</button>
+                <button class="jm-page-btn">3</button>
+                <span class="jm-dots">...</span>
+                <button class="jm-page-btn">250</button>
+                <button id="jm-btn-next" class="jm-page-btn">&gt;</button>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
