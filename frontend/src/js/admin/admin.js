@@ -1,61 +1,44 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  await window.PortalLayout.init();
-  renderRecentLogs();
-  bindAdminActions();
+// Hàm tải nội dung trang
+async function loadAdminPage(pageUrl) {
+  try {
+    // ĐÂY LÀ DÒNG ÉP TRÌNH DUYỆT LUÔN TẢI BẢN HTML MỚI NHẤT
+    const noCacheUrl = pageUrl + '?v=' + new Date().getTime();
+    
+    // Sử dụng url mới để fetch
+    const response = await fetch(noCacheUrl);
+    
+    if (!response.ok) throw new Error('Không thể tải trang');
+    const html = await response.text();
+    
+    // Đổ nội dung vào main content
+    document.getElementById('app-content').innerHTML = html;
+
+    setTimeout(() => {
+        if (pageUrl.includes('dashboard.html') && typeof window.initDashboard === 'function') {
+            window.initDashboard(); // Vẽ bảng phân trang
+        }
+        if (pageUrl.includes('journal-manager.html') && typeof window.initJournalManager === 'function') {
+            window.initJournalManager();
+        }
+    }, 100);
+  } catch (error) {
+    console.error('Lỗi Routing:', error);
+    document.getElementById('app-content').innerHTML = `<h2>Lỗi tải dữ liệu. Vui lòng kiểm tra kết nối.</h2>`;
+  }
+}
+
+// Khi trang vừa load lên, mặc định tải Dashboard
+document.addEventListener('DOMContentLoaded', () => {
+  loadAdminPage('dashboard.html');
 });
 
-function renderRecentLogs() {
-  const body = document.querySelector("#admin-log-body");
-  if (!body) return;
-
-  const rows = [
-    {
-      id: "#8828",
-      notary: "Jane Doe",
-      issue: "Signer signature missing",
-      updated: "03/25/2026 08:15",
-      status: "Open",
-      statusClass: "is-open",
-    },
-    {
-      id: "#8819",
-      notary: "Robert Fox",
-      issue: "Thumbprint review required",
-      updated: "03/24/2026 17:40",
-      status: "Open",
-      statusClass: "is-open",
-    },
-    {
-      id: "#8797",
-      notary: "Sarah Jenkins",
-      issue: "Certificate reference verified",
-      updated: "03/24/2026 15:20",
-      status: "Resolved",
-      statusClass: "is-resolved",
-    },
-  ];
-
-  body.innerHTML = rows
-    .map(
-      (row) => `
-        <tr>
-          <td><a class="entry-link" href="./notary/notary.html">${row.id}</a></td>
-          <td>${row.notary}</td>
-          <td>${row.issue}</td>
-          <td>${row.updated}</td>
-          <td><span class="admin-log-status ${row.statusClass}">${row.status}</span></td>
-        </tr>
-      `
-    )
-    .join("");
-}
-
-function bindAdminActions() {
-  document.querySelector("#admin-clear-filters")?.addEventListener("click", () => {
-    window.alert("Filters reset in this mock dashboard.");
-  });
-
-  document.querySelector("#admin-new-audit")?.addEventListener("click", () => {
-    window.alert("New Audit action is a placeholder in this Live Server prototype.");
-  });
-}
+// Xử lý sự kiện click trên thanh điều hướng
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('nav-link')) {
+    e.preventDefault();
+    const pageUrl = e.target.getAttribute('data-page');
+    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+    e.target.classList.add('active');
+    loadAdminPage(pageUrl);
+  }
+});

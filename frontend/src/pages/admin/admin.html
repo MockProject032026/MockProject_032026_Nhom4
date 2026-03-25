@@ -1,20 +1,20 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="../css/common.css" />
-    <link rel="stylesheet" href="../css/admin.css" />
-  </head>
-  <body data-nav="dashboard">
-    <header class="portal-header">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../../css/admin/admin.css">
+  <link rel="stylesheet" href="../../css/admin/dashboard.css">
+  <link rel="stylesheet" href="../../css/admin/journal-manager.css">
+</head>
+<body>
+  <header class="portal-header">
       <div class="portal-header__inner">
-        <a class="portal-brand" href="../index.html">NCS Portal</a>
-        <nav class="portal-menu">
-          <a class="portal-menu__link" data-nav="dashboard" href="./admin.html">Dashboard</a>
-          <a class="portal-menu__link" data-nav="journal" href="./notary/notary.html">Journal Manager</a>
-        </nav>
+        <a class="portal-brand" href="../../index.html">NCS Portal</a>
+        <ul class="nav-menu portal-menu">
+          <a href="#" class="nav-link active" data-page="dashboard.html">Dashboard</a>
+          <a href="#" class="nav-link" data-page="journal-manager.html">Journal Manager</a>
+        </ul>
         <div class="portal-user">
           <span class="portal-user__bell">!</span>
           <span class="portal-user__avatar">A</span>
@@ -23,25 +23,11 @@
       </div>
     </header>
 
-    <main class="page-shell">
-      <section class="page-hero">
-        <div>
-          <h1>Dashboard</h1>
-          <p>High-level overview of company-wide journal integrity and regulatory status.</p>
-        </div>
-        <div class="page-actions">
-          <button class="button button--secondary" type="button">Export Report</button>
-          <button class="button button--primary" id="admin-new-audit" type="button">+ New Audit</button>
-        </div>
-      </section>
+  <main id="app-content">
+  </main>
 
-      <section data-partial="./admin/partials/filter-bar.html"></section>
-      <section class="section-row" data-partial="./admin/partials/kpi-grid.html"></section>
-      <section class="section-row" data-partial="./admin/partials/alerts.html"></section>
-      <section class="section-row" data-partial="./admin/partials/recent-logs.html"></section>
-    </main>
-
-    <script src="../js/common/layout.js"></script>
-    <script src="../js/admin/admin.js"></script>
-  </body>
+  <script src="../../js/admin/admin.js"></script>
+  <script src="../../js/admin/dashboard.js"></script>
+  <script src="../../js/admin/journal-manager.js"></script>
+</body>
 </html>
