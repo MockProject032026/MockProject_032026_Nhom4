@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NCS Portal Mock</title>
+    <link rel="stylesheet" href="./css/common.css" />
+  </head>
+  <body data-nav="landing">
+    <header class="portal-header">
+      <div class="portal-header__inner">
+        <a class="portal-brand" href="./index.html">NCS Portal</a>
+        <nav class="portal-menu">
+          <a class="portal-menu__link" href="./pages/admin.html">Dashboard</a>
+          <a class="portal-menu__link" href="./pages/notary/notary.html">Journal Manager</a>
+          <a class="portal-menu__link" href="./pages/user/user.html">Signer Flow</a>
+        </nav>
+        <div class="portal-user">
+          <span class="portal-user__bell">!</span>
+          <span class="portal-user__avatar">A</span>
+          <span>Admin User</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-shell landing-shell">
+      <section class="page-card landing-card">
+        <span class="section-kicker">Live Server Structure</span>
+        <h1>Static Notary Journal Pages</h1>
+        <p>
+          Open each HTML file directly with Live Server. This build no longer depends on Vite or
+          `npm run dev`.
+        </p>
+        <div class="landing-links">
+          <a class="button button--primary" href="./pages/admin.html">Open Admin</a>
+          <a class="button button--primary" href="./pages/notary/notary.html">Open Notary</a>
+          <a class="button button--primary" href="./pages/user/user.html">Open User Flow</a>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,124 @@
+<div class="detail-view-stack">
+  <section class="page-card biometric-banner">
+    <div class="biometric-banner__left">
+      <span class="biometric-banner__icon">&#9638;</span>
+      <strong>Biometric Capture</strong>
+    </div>
+    <div class="biometric-banner__right">
+      <div class="biometric-banner__meta">
+        <span>Security Level</span>
+        <strong>Class-3 AES Encrypted</strong>
+      </div>
+      <span class="biometric-banner__shield">&#128737;</span>
+    </div>
+  </section>
+
+  <section class="identity-heading">
+    <h2>Identity Verification</h2>
+    <p>Please provide your digital signature and biometric thumbprint to authorize this secure transaction.</p>
+  </section>
+
+  <section class="page-card capture-shell">
+    <div class="capture-shell__head">
+      <h3 class="capture-shell__title"><span class="capture-shell__icon">&#10070;</span><span>Signature &amp; Thumbprint</span></h3>
+    </div>
+    <div class="capture-shell__body">
+      <div class="capture-stage">
+        <div class="capture-stage__head">
+          <h3>Digital Signature</h3>
+          <button class="capture-action" type="button">Clear Sign</button>
+        </div>
+        <div class="signature-box"><span class="signature-box__mark">Jian</span></div>
+        <div class="capture-note capture-note--center">
+          <span>Sign within the designated area.</span>
+          <span class="capture-note__success">Capture successful</span>
+        </div>
+      </div>
+      <div class="capture-stage">
+        <div class="capture-stage__head">
+          <h3>Thumbprint Scan</h3>
+          <button class="capture-action is-success" data-toggle-complete="#signer-thumb-card" type="button">Clear Thumb</button>
+        </div>
+        <div class="capture-box" id="signer-thumb-card">
+          <div class="capture-box__plate">
+            <span class="capture-box__icon">&#9711;</span>
+          </div>
+          <span class="capture-box__label">PLACE THUMB ON SENSOR</span>
+        </div>
+        <div class="capture-note capture-note--center">
+          <span>Ensure your thumb is clean and centered on the scanner plate.</span>
+          <span class="capture-note__success">Capture successful</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page-card capture-shell">
+    <div class="capture-shell__head">
+      <h3 class="capture-shell__title"><span class="capture-shell__icon">&#10070;</span><span>Notary's Confirmation</span></h3>
+    </div>
+    <div class="capture-shell__body">
+      <div class="capture-stage">
+        <div class="capture-stage__head">
+          <h3>Digital Signature</h3>
+          <button class="capture-action" type="button">Clear Sign</button>
+        </div>
+        <div class="signature-box"><span class="signature-box__mark">Jian</span></div>
+        <div class="capture-note capture-note--center">
+          <span>Sign within the designated area.</span>
+          <span class="capture-note__success">Capture successful</span>
+        </div>
+      </div>
+      <div class="capture-stage">
+        <div class="capture-stage__head">
+          <h3>Thumbprint Scan</h3>
+          <button class="capture-action is-success" data-toggle-complete="#notary-thumb-card" type="button">Clear Thumb</button>
+        </div>
+        <div class="capture-box" id="notary-thumb-card">
+          <div class="capture-box__plate">
+            <span class="capture-box__icon">&#9711;</span>
+          </div>
+          <span class="capture-box__label">PLACE THUMB ON SENSOR</span>
+        </div>
+        <div class="capture-note capture-note--center">
+          <span>Ensure your thumb is clean and centered on the scanner plate.</span>
+          <span class="capture-note__success">Capture successful</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="progress-footer">
+    <div class="page-card metadata-panel">
+      <div class="meta-chip">
+        <span class="meta-chip__icon">&#9716;</span>
+        <div>
+          <strong>TIMESTAMP</strong>
+          <span>2023-10-27 14:32:05 UTC</span>
+        </div>
+      </div>
+      <div class="meta-chip">
+        <span class="meta-chip__icon">&#9974;</span>
+        <div>
+          <strong>DEVICE ID</strong>
+          <span>BIO-7729-SEC-X</span>
+        </div>
+      </div>
+      <div class="meta-chip">
+        <span class="meta-chip__icon">&#9678;</span>
+        <div>
+          <strong>LOCATION INFO</strong>
+          <span>Secure Node 14 (LAT/LONG Masked)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="progress-footer__actions">
+      <button class="action-link" data-nav-view="signer-id" type="button">Cancel</button>
+      <button class="button button--primary progress-submit" data-nav-view="linked-act" type="button">
+        <span class="progress-submit__icon">&#128737;</span>
+        <span>Submit Progress</span>
+      </button>
+    </div>
+  </section>
+</div>
