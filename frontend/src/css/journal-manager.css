@@ -1,0 +1,69 @@
+/* Journal Manager Specific Variables */
+:root {
+    --jm-text-main: #111827;
+    --jm-text-muted: #6b7280;
+    --jm-text-light: #9ca3af;
+    --jm-border: #e5e7eb;
+    --jm-bg-white: #ffffff;
+    --jm-bg-gray: #f9fafb;
+    --jm-primary: #2563eb;
+}
+
+.jm-wrapper { font-family: 'Inter', 'Segoe UI', sans-serif; color: var(--jm-text-main); }
+
+/* Header & Actions */
+.jm-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; }
+.jm-title-block h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.25rem; }
+.jm-title-block p { color: var(--jm-text-muted); font-size: 0.9rem; margin: 0; }
+
+.jm-actions { display: flex; gap: 0.75rem; align-items: center; }
+.jm-search-box { display: flex; align-items: center; background: var(--jm-bg-gray); border: 1px solid var(--jm-border); border-radius: 6px; padding: 0.5rem 0.75rem; width: 250px; }
+.jm-search-box input { border: none; background: transparent; outline: none; margin-left: 0.5rem; width: 100%; font-size: 0.85rem; }
+
+.jm-btn-primary { background: var(--jm-primary); color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }
+.jm-btn-outline { background: white; color: var(--jm-text-main); border: 1px solid var(--jm-border); padding: 0.6rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; }
+
+/* Filters */
+.jm-filters { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; background: var(--jm-bg-white); padding: 1.5rem; border: 1px solid var(--jm-border); border-radius: 8px 8px 0 0; border-bottom: none; }
+.jm-filter-group { display: flex; flex-direction: column; gap: 0.4rem; justify-content: flex-end; }
+.jm-filter-group label { font-size: 0.7rem; font-weight: 700; color: var(--jm-text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+.jm-filter-group select, .jm-filter-group input[type="text"] { border: 1px solid var(--jm-border); background: var(--jm-bg-white); padding: 0.5rem; border-radius: 6px; outline: none; font-size: 0.85rem; color: var(--jm-text-main); width: 100%; }
+
+.jm-input-with-icon { position: relative; display: flex; align-items: center; }
+.jm-input-with-icon input { padding-right: 2rem; }
+.jm-input-with-icon svg { position: absolute; right: 0.75rem; color: var(--jm-text-muted); pointer-events: none; }
+
+.jm-btn-clear { background: #eff6ff; color: #1d4ed8; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; height: 35px; width: 100%; }
+
+/* Table */
+.jm-table-container { background: var(--jm-bg-white); border: 1px solid var(--jm-border); border-radius: 0 0 8px 8px; }
+.jm-table { width: 100%; border-collapse: collapse; text-align: left; }
+.jm-table th { font-size: 0.7rem; color: var(--jm-text-muted); font-weight: 700; padding: 1.25rem 1.5rem; text-transform: uppercase; border-bottom: 1px solid var(--jm-border); border-top: 1px solid var(--jm-border); }
+.jm-table td { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--jm-border); font-size: 0.85rem; vertical-align: middle; }
+.jm-table tr:last-child td { border-bottom: none; }
+
+/* Status & Type Pills */
+.jm-id { color: var(--jm-primary); font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+.jm-type-pill { background: var(--jm-bg-gray); color: var(--jm-text-muted); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; border: 1px solid var(--jm-border); }
+
+.jm-status-pill { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+.jm-status-pill::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+.st-completed { background: #dcfce7; color: #166534; } .st-completed::before { background: #166534; }
+.st-draft { background: #eff6ff; color: #1d4ed8; } .st-draft::before { background: #1d4ed8; }
+.st-locked { background: #f3f4f6; color: #4b5563; } /* Locked uses svg icon, not dot */
+.st-action { background: #fee2e2; color: #991b1b; } .st-action::before { background: #991b1b; }
+
+.jm-risk-pill { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+.jm-risk-pill::before { content: ''; width: 6px; height: 6px; border-radius: 50%; }
+.rk-warning { background: #fef08a; color: #854d0e; } .rk-warning::before { background: #854d0e; }
+
+.jm-action-link { display: flex; flex-direction: column; color: var(--jm-primary); font-weight: 600; font-size: 0.75rem; text-decoration: none; }
+
+/* Pagination */
+.jm-pagination-footer { padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--jm-border); }
+.jm-info { font-size: 0.85rem; color: var(--jm-text-muted); }
+.jm-pagination { display: flex; gap: 0.25rem; align-items: center; }
+.jm-page-btn { background: transparent; border: none; color: var(--jm-text-muted); font-size: 0.85rem; font-weight: 600; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; }
+.jm-page-btn:hover { background: var(--jm-bg-gray); }
+.jm-page-btn.active { background: var(--jm-primary); color: white; }
+.jm-dots { color: var(--jm-text-muted); padding: 0 0.5rem; }
