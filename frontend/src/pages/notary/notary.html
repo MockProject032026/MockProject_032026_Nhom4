@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notary Journal Entries</title>
+    <link rel="stylesheet" href="../../css/common.css" />
+    <link rel="stylesheet" href="../../css/notary.css" />
+  </head>
+  <body data-nav="journal">
+    <header class="portal-header">
+      <div class="portal-header__inner">
+        <a class="portal-brand" href="../../index.html">NCS Portal</a>
+        <nav class="portal-menu">
+          <a class="portal-menu__link" data-nav="dashboard" href="../admin.html">Dashboard</a>
+          <a class="portal-menu__link" data-nav="journal" href="./notary.html">Journal Manager</a>
+        </nav>
+        <div class="portal-user">
+          <span class="portal-user__bell">!</span>
+          <span class="portal-user__avatar">N</span>
+          <span>Notary User</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="page-shell">
+      <section class="page-hero">
+        <div>
+          <h1>Journal Entries</h1>
+          <p>Centralized management and search of all notary journal records.</p>
+        </div>
+        <div class="page-actions">
+          <button class="button button--secondary" id="notary-export" type="button">Export CSV</button>
+          <button class="button button--primary" id="notary-new-entry" type="button">+ New Entry</button>
+        </div>
+      </section>
+
+      <section data-partial="./partials/filters.html"></section>
+      <section class="section-row" data-partial="./partials/journal-table.html"></section>
+    </main>
+
+    <script src="../../js/common/layout.js"></script>
+    <script src="../../js/notary/notary.js"></script>
+  </body>
+</html>
