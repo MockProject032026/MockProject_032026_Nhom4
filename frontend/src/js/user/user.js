@@ -3,6 +3,7 @@ const userViews = {
   "entry-data": "./partials/entry-data.html",
   signature: "./partials/signature-thumbprint.html",
   "linked-act": "./partials/linked-act.html",
+  "audit-log": "./partials/audit-log.html",
 };
 
 document.addEventListener("DOMContentLoaded", async () => {
