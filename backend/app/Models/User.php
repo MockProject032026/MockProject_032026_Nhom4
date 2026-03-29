@@ -2,48 +2,55 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    // 1. Cấu hình khóa chính UUID
+    protected $primaryKey = 'id';
+    protected $keyType = 'string';
+    public $incrementing = false;
+
+    // 2. Các cột có thể nạp dữ liệu (Mass Assignable)
+    // Sửa theo đúng tên cột trong file SQL của bạn
     protected $fillable = [
-        'name',
+        'id',
         'email',
-        'password',
+        'password_hash',
+        'phone_number',
+        'status',
+        'full_name',
+        'dob',
+        'address',
+        'id_role',
+        'commission_number',
+        'commission_expiry_date',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
+    // 3. Các cột cần ẩn khi trả về JSON
     protected $hidden = [
-        'password',
+        'password_hash',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
+    // 4. Chỉ định Laravel dùng cột 'password_hash' để xác thực đăng nhập
+    public function getAuthPassword()
+    {
+        return $this->password_hash;
+    }
+
+    // 5. Cấu hình ép kiểu dữ liệu
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'dob' => 'date',
+            'commission_expiry_date' => 'date',
+            'created_at' => 'datetime',
+            'password_hash' => 'hashed', // Tự động hash khi lưu
         ];
     }
 }
