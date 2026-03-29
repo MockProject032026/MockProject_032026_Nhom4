@@ -1,5 +1,6 @@
 const userViews = {
   "signer-id": "./partials/signer-id.html",
+  "entry-data": "./partials/entry-data.html",
   signature: "./partials/signature-thumbprint.html",
   "linked-act": "./partials/linked-act.html",
 };
@@ -47,13 +48,17 @@ function bindViewActions(viewKey) {
   });
 
   if (viewKey === "signer-id") {
-    document.querySelector("#discard-signer-view")?.addEventListener("click", () => {
-      window.alert("Discarded mock changes.");
-    });
+    document
+      .querySelector("#discard-signer-view")
+      ?.addEventListener("click", () => {
+        window.alert("Discarded mock changes.");
+      });
 
     document.querySelectorAll(".method-option").forEach((option) => {
       option.addEventListener("click", () => {
-        document.querySelectorAll(".method-option").forEach((item) => item.classList.remove("is-active"));
+        document
+          .querySelectorAll(".method-option")
+          .forEach((item) => item.classList.remove("is-active"));
         option.classList.add("is-active");
       });
     });

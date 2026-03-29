@@ -6,13 +6,22 @@
     <title>User Capture Flow</title>
     <link rel="stylesheet" href="../../css/common.css" />
     <link rel="stylesheet" href="../../css/user.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
   </head>
   <body data-nav="journal">
     <header class="portal-header">
       <div class="portal-header__inner">
         <a class="portal-brand" href="../../index.html">NCS Portal</a>
         <nav class="portal-menu">
-          <a class="portal-menu__link" data-nav="journal" href="../notary/notary.html">Journal Manager</a>
+          <a
+            class="portal-menu__link"
+            data-nav="journal"
+            href="../notary/notary.html"
+            >Journal Manager</a
+          >
         </nav>
         <div class="portal-user">
           <span class="portal-user__bell">!</span>
@@ -28,15 +37,31 @@
           <div>
             <span class="section-kicker">Journal Entry Workspace</span>
             <h1>Entry #JRN-8821-2023</h1>
-            <p>Signer capture flow and linked act review for the selected journal record.</p>
+            <p>
+              Signer capture flow and linked act review for the selected journal
+              record.
+            </p>
           </div>
           <span class="pill-note">Draft Entry</span>
         </div>
 
         <div class="detail-tabs">
-          <button class="detail-tab is-active" data-view="signer-id" type="button">Signer &amp; ID Information</button>
-          <button class="detail-tab" data-view="signature" type="button">Signature / Thumbprint</button>
-          <button class="detail-tab" data-view="linked-act" type="button">Linked Notarial Act</button>
+          <button class="detail-tab" data-view="entry-data" type="button">
+            Entry Data
+          </button>
+          <button
+            class="detail-tab is-active"
+            data-view="signer-id"
+            type="button"
+          >
+            Signer &amp; ID Information
+          </button>
+          <button class="detail-tab" data-view="signature" type="button">
+            Signature / Thumbprint
+          </button>
+          <button class="detail-tab" data-view="linked-act" type="button">
+            Linked Notarial Act
+          </button>
         </div>
       </section>
 
