@@ -1865,8 +1865,7 @@ label.core-entry-data {
   color: #a3acbb;
 }
 /* -------------------------------------------------- */
-/* --- CSS Riêng cho Màn hình Audit Log --- */
-/* --- 1. MACRO STRUCTURE & HEADER (The Arena) --- */
+/* Audit - log */
 .detail-view-stack {
   display: flex;
   flex-direction: column;
@@ -1889,7 +1888,7 @@ label.core-entry-data {
   line-height: 1.5;
 }
 
-/* --- 2. STATS SYSTEM (Resource Tracking) --- */
+/* --- 2. HỆ THỐNG THỐNG KÊ (Stats Cards) --- */
 .audit-stats-group {
   display: flex;
   gap: 16px;
@@ -1907,6 +1906,31 @@ label.core-entry-data {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
+  overflow: hidden;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  border-color: #bfdbfe;
+  background-color: #fcfdff;
+}
+
+.stat-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: #2563eb;
+  border-radius: 8px 8px 0 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stat-card:hover::after {
+  opacity: 1;
 }
 
 .stat-card span {
@@ -1924,45 +1948,21 @@ label.core-entry-data {
   transition: transform 0.3s ease;
 }
 
-/* Stat Card Mechanics */
-.stat-card::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background: #2563eb;
-  border-radius: 8px 8px 0 0;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-  border-color: #bfdbfe;
-  background-color: #fcfdff;
-}
-
-.stat-card:hover::after {
-  opacity: 1;
-}
-
 .stat-card:hover div[class^="val-"] {
   transform: scale(1.05);
 }
 
-.stat-card .val-blue {
+/* Màu sắc chỉ số */
+.val-blue {
   color: #2563eb;
 }
-.stat-card .val-green {
+.val-green {
   color: #16a34a;
 }
-.stat-card .val-red {
+.val-red {
   color: #dc2626;
 }
-.stat-card .val-orange {
+.val-orange {
   color: #f59e0b;
   display: flex;
   align-items: center;
@@ -1970,7 +1970,7 @@ label.core-entry-data {
   gap: 4px;
 }
 
-/* --- 3. TARGETING SYSTEMS (Filters & Advanced Search) --- */
+/* --- 3. (Filters & Search) --- */
 .filter-builder {
   display: flex;
   flex-direction: column;
@@ -2027,7 +2027,6 @@ label.core-entry-data {
   background-color: transparent;
 }
 
-/* Filter Interaction Mechanics */
 .fg-label:hover,
 .fg-value:hover {
   background-color: #ffffff !important;
@@ -2054,8 +2053,6 @@ label.core-entry-data {
 .filter-group.active .fg-value:hover {
   background-color: #1d4ed8 !important;
   border-color: #1d4ed8;
-  color: #ffffff;
-  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
 }
 
@@ -2087,32 +2084,21 @@ label.core-entry-data {
   margin-left: 1rem;
 }
 
-.search-pills {
-  display: flex;
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-/* --- 4. COMBAT LOG (Grid Table System) --- */
+/* --- 4. BẢNG --- */
 .audit-table-container {
-  --audit-cols: 1.2fr 1.8fr 1.5fr 1.2fr 2.5fr 1fr;
-  border: 1px solid var(--slate-200);
-  border-radius: 8px;
   background: var(--white);
   width: 100%;
-  overflow-x: auto;
-  display: block;
+  overflow-x: visible;
 }
 
 .audit-row {
   display: grid;
-  grid-template-columns: var(--audit-cols);
+  grid-template-columns: 1.2fr 1.8fr 1.5fr 1.2fr 2.5fr 1fr;
   gap: 16px;
-  padding: 16px 20px;
+  padding: 8px 20px;
   align-items: center;
   border-bottom: 1px solid #f1f5f9;
-  min-width: 950px;
-  min-height: 60px;
+  min-height: 105px;
 }
 
 .audit-row:last-child {
@@ -2121,13 +2107,50 @@ label.core-entry-data {
 
 .audit-row.header {
   background: #f8fafc;
-  font-size: 0.75rem;
-  font-weight: 800;
+  font-size: 0.9rem;
+  font-weight: 700;
   text-transform: uppercase;
   color: var(--slate-700);
+  min-height: 0 !important;
 }
 
-/* Table Specific Micro-Layouts */
+.audit-row.header .flags {
+  text-align: center;
+}
+/* symbol */
+.material-symbols-outlined {
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
+  font-size: 20px;
+  color: #94a3b8;
+  vertical-align: middle;
+}
+.material-symbols-outlined.black {
+  color: #000000;
+}
+.material-symbols-outlined.white {
+  color: #ffffff;
+}
+.material-symbols-outlined.yellow {
+  color: #f59e0b;
+}
+.material-symbols-outlined.red {
+  color: #dc2626;
+}
+.material-symbols-outlined.green {
+  color: #16a34a;
+}
+.td-flags .material-symbols-outlined {
+  margin-right: 4px;
+}
+
+/* Các cột dữ liệu */
+.details {
+  padding: 0px 30px;
+}
 .td-time strong {
   display: block;
   font-size: 0.85rem;
@@ -2142,25 +2165,27 @@ label.core-entry-data {
 
 .td-resource {
   font-family: monospace;
-  font-weight: 600;
   color: var(--slate-700);
   font-size: 0.85rem;
+}
+
+.td-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  margin: 0px 30px;
 }
 
 .td-flags {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.9rem;
+  gap: 2px;
+  font-weight: 400;
 }
 
-.td-details--compact {
-  font-size: 0.85rem;
-  line-height: 1.4;
-}
-
-/* --- 5. COMPONENT MECHANICS & UTILITIES (Global Scope) --- */
-/* User Info & Avatars */
+/* User & Avatars */
 .user-info {
   display: flex;
   flex-direction: column;
@@ -2177,7 +2202,7 @@ label.core-entry-data {
 .user-avatar {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
+  border-radius: 35%;
   display: grid;
   place-items: center;
   font-weight: 700;
@@ -2192,56 +2217,56 @@ label.core-entry-data {
   background: #0f172a;
   color: #ffffff;
 }
-.user-avatar.mk-gray {
-  background: #f1f5f9;
-  color: #334155;
-}
-.user-avatar.mk-blue {
+.user-avatar.mk {
   background: #e0f2fe;
   color: #0284c7;
-}
+} /* MK Blue */
 
 /* Badge System */
 .action-badge {
   padding: 4px 10px;
   border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 800;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid transparent;
 }
 
-.badge-purple,
 .action-badge.purple {
   background: #f3e8ff;
   color: #7e22ce;
-  border: 1px solid #e9d5ff;
+  border-color: #e9d5ff;
 }
-.badge-blue {
+.action-badge.blue {
   background: #eff6ff;
   color: #2563eb;
-  border: 1px solid #bfdbfe;
+  border-color: #bfdbfe;
 }
-.badge-red {
+.action-badge.red {
   background: #fef2f2;
   color: #dc2626;
-  border: 1px solid #fecaca;
+  border-color: #fecaca;
 }
-.badge-green {
+.action-badge.green {
   background: #f0fdf4;
   color: #16a34a;
-  border: 1px solid #bbf7d0;
+  border-color: #bbf7d0;
 }
 
-/* Advanced Search Pills */
+/* Search Pills */
+.search-pills {
+  display: flex;
+  gap: 12px;
+  flex-shrink: 0;
+}
 .adv-pill {
   display: inline-flex;
   align-items: center;
+  gap: 8px;
+  padding: 11px 3px;
   border-radius: 6px;
   border: 1px solid #e2e8f0;
   background: #f8fafc;
-  gap: 8px;
-  padding: 11px 3px;
 }
-
 .adv-pill span {
   font-size: 0.85rem;
   color: #94a3b8;
@@ -2250,23 +2275,16 @@ label.core-entry-data {
 }
 .adv-pill strong {
   font-size: 0.85rem;
-  border-radius: 4px;
   font-weight: 600;
+  border-radius: 4px;
   border: 1px solid transparent;
   padding: 9px 10px;
   margin: -4px 1px;
-}
-
-.adv-pill.blue {
-  border-color: #e2e8f0;
 }
 .adv-pill.blue strong {
   background-color: #dbeafe;
   color: #2563eb;
   border-color: #2563eb;
-}
-.adv-pill.red {
-  border-color: #e2e8f0;
 }
 .adv-pill.red strong {
   background-color: #fee2e2;
@@ -2274,67 +2292,52 @@ label.core-entry-data {
   border-color: #dc2626;
 }
 
-/* Diff View Mechanic (Before/After) */
-.diff-view {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 0.8rem;
-}
-.diff-line {
+/* (Before/After) */
+.detail-line {
   display: flex;
   align-items: flex-start;
   gap: 8px;
+  align-items: center;
 }
-.diff-label {
-  font-size: 0.7rem;
-  font-weight: 800;
-  color: var(--slate-500);
-  min-width: 55px;
+.detail-label-before,
+.detail-label-after {
+  font-weight: 700;
+  color: #94a3b8;
+  width: 65px;
+  flex-shrink: 0;
+  font-size: 0.9rem;
   margin-top: 2px;
 }
-.diff-val {
-  color: var(--slate-600);
-}
-.val-after,
-.diff-val-box {
-  background: #eff6ff;
-  color: #2563eb;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: 600;
+.detail-label-after {
+  color: #3b82f6;
 }
 
-/* Flag System & Text Utilities */
-.flag-warning,
-.text-orange {
-  color: #d97706;
-  font-weight: 600;
-}
-.flag-info,
-.text-gray {
-  color: #64748b;
+.val-before {
+  color: #94a3b8;
   font-weight: 500;
+  padding: 2px 8px;
+  word-break: break-word;
 }
-.flag-danger {
-  color: #dc2626;
-  font-weight: 600;
-}
-.flag-success {
-  color: #16a34a;
-  font-weight: 600;
-}
-.text-blue {
+.val-after {
+  display: inline-block;
+  background-color: #dbeafe;
   color: #2563eb;
-  font-weight: 700;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  word-break: break-word;
+}
+.val-after.legal-freeze {
+  background-color: transparent !important;
 }
 
-/* --- 6. FOOTER & ACTIONS (Endgame) --- */
+/* --- 6. FOOTER --- */
 .audit-table-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 16px;
+  background: #f8fafc;
+  padding: 16px 20px;
 }
 
 .audit-pagination-custom {
@@ -2351,7 +2354,6 @@ label.core-entry-data {
 }
 
 .bottom-actions-area {
-  grid-column: 1 / -1;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -2382,4 +2384,79 @@ label.core-entry-data {
 }
 .btn-export {
   background: #2563eb;
+}
+
+@media (max-width: 1200px) {
+  .audit-table-container {
+    overflow-x: auto;
+  }
+  .audit-row {
+    min-width: 1200px;
+  }
+}
+
+/* --- TÙY CHỈNH HIỆU ỨNG NÚT (Pagination & Actions) --- */
+
+.audit-page-btn {
+  border: 1px solid var(--slate-200);
+  padding: 6px 14px;
+  border-radius: 6px;
+  background: var(--white);
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--slate-700);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.audit-page-btn:hover {
+  background-color: #ffffff;
+  border-color: #2563eb;
+  color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+
+.audit-page-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.btn-print,
+.btn-export {
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: white;
+  transition: all 0.25s ease;
+}
+
+.btn-print {
+  background: #94a3b8;
+}
+
+.btn-print:hover {
+  background: #64748b;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(148, 163, 184, 0.3);
+}
+
+.btn-export {
+  background: #2563eb;
+}
+
+.btn-export:hover {
+  background: #1d4ed8;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 15px rgba(37, 99, 235, 0.3);
+}
+
+.btn-print:active,
+.btn-export:active {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
