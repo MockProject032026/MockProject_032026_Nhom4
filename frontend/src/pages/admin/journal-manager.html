@@ -21,29 +21,32 @@
     <div class="jm-filters">
         <div class="jm-filter-group">
             <label>STATUS</label>
-            <select><option>All Statuses</option></select>
+            <select id="jm-filter-status">
+                <option value="">All Statuses</option>
+                <option value="completed">Completed</option>
+                <option value="draft">Draft</option>
+                <option value="action_required">Action Required</option>
+                <option value="locked">Locked</option>
+            </select>
         </div>
         <div class="jm-filter-group">
             <label>DATE RANGE</label>
             <div class="jm-input-with-icon">
-                <input type="text" value="Last 30 Days" readonly>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                <input type="date" id="jm-filter-date" style="width: 100%; border: 1px solid var(--jm-border); padding: 0.5rem; border-radius: 6px;">
             </div>
         </div>
         <div class="jm-filter-group">
-            <label>ACT TYPE</label>
-            <select><option>All Acts</option></select>
-        </div>
-        <div class="jm-filter-group">
-            <label>NOTARY</label>
-            <input type="text" placeholder="Name or ID">
-        </div>
-        <div class="jm-filter-group">
             <label>STATE</label>
-            <select><option>All States</option></select>
+            <select id="jm-filter-state">
+                <option value="">All States</option>
+                <option value="Texas">Texas</option>
+                <option value="California">California</option>
+                <option value="New York">New York</option>
+                <option value="Florida">Florida</option>
+            </select>
         </div>
         <div class="jm-filter-group" style="justify-content: flex-end;">
-            <button class="jm-btn-clear">Clear All</button>
+            <button class="jm-btn-clear" id="jm-btn-clear">Clear All</button>
         </div>
     </div>
 
