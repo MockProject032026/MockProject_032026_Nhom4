@@ -5,26 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
-class BiometricData extends Model
+class Attachment extends Model
 {
-    protected $table = 'biometric_data';
+    protected $table = 'attachments';
     protected $keyType = 'string';
     public $incrementing = false;
     public $timestamps = false;
 
     protected $fillable = [
-        'signer_id', 'signature_image', 'thumbprint_image',
-        'biometric_match_hash', 'capture_device_id', 'capture_location',
+        'journal_entry_id', 'file_name', 'file_path', 'file_type',
     ];
 
     protected static function boot(): void
     {
         parent::boot();
         static::creating(fn($m) => $m->id = (string) Str::uuid());
-    }
-
-    public function signer()
-    {
-        return $this->belongsTo(Signer::class);
     }
 }
