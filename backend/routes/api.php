@@ -102,6 +102,11 @@ Route::prefix('v1')->group(function () {
         [JournalController::class, 'waiveThumbprint']
     );
 
+    // SC_009: Export
+    Route::get('journals/{id}/export-pdf', [JournalController::class, 'exportPdf']);
+    Route::post('journals/export', [JournalController::class, 'export']);
+    Route::get('journals/export/{jobId}', [JournalController::class, 'exportStatus']);
+
     /*
     |--------------------------------------------------------------------------
     | Notary Biometrics
