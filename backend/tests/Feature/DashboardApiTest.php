@@ -171,7 +171,8 @@ class DashboardApiTest extends TestCase
      */
     public function test_get_kpi_summary(): void
     {
-        $response = $this->getJson('/api/v1/dashboard/kpi-summary');
+        $response = $this->actingAs($this->adminUser)
+                        ->getJson('/api/v1/dashboard/kpi-summary');
 
         $response->assertStatus(200)
                 ->assertJsonStructure([
@@ -190,7 +191,8 @@ class DashboardApiTest extends TestCase
      */
     public function test_kpi_summary_with_state_filter(): void
     {
-        $response = $this->getJson('/api/v1/dashboard/kpi-summary?venue_state=CA');
+        $response = $this->actingAs($this->adminUser)
+                        ->getJson('/api/v1/dashboard/kpi-summary?venue_state=CA');
 
         $response->assertStatus(200)
                 ->assertJson(['success' => true]);
@@ -204,7 +206,8 @@ class DashboardApiTest extends TestCase
      */
     public function test_kpi_summary_with_notary_filter(): void
     {
-        $response = $this->getJson('/api/v1/dashboard/kpi-summary?notary_id=' . $this->notaryUser->id);
+        $response = $this->actingAs($this->adminUser)
+                        ->getJson('/api/v1/dashboard/kpi-summary?notary_id=' . $this->notaryUser->id);
 
         $response->assertStatus(200)
                 ->assertJson(['success' => true]);
@@ -216,7 +219,8 @@ class DashboardApiTest extends TestCase
     public function test_kpi_summary_with_date_filter(): void
     {
         // One entry is on 2026-03-15, another on 16th, another on 17th
-        $response = $this->getJson('/api/v1/dashboard/kpi-summary?start_date=2026-03-15&end_date=2026-03-15');
+        $response = $this->actingAs($this->adminUser)
+                        ->getJson('/api/v1/dashboard/kpi-summary?start_date=2026-03-15&end_date=2026-03-15');
 
         $response->assertStatus(200)
                 ->assertJson(['success' => true]);
@@ -233,7 +237,8 @@ class DashboardApiTest extends TestCase
      */
     public function test_get_compliance_logs(): void
     {
-        $response = $this->getJson('/api/v1/dashboard/compliance-logs');
+        $response = $this->actingAs($this->adminUser)
+                        ->getJson('/api/v1/dashboard/compliance-logs');
 
         $response->assertStatus(200)
                 ->assertJsonStructure([
@@ -263,7 +268,8 @@ class DashboardApiTest extends TestCase
 
     public function test_compliance_logs_with_limit(): void
     {
-        $response = $this->getJson('/api/v1/dashboard/compliance-logs?limit=1');
+        $response = $this->actingAs($this->adminUser)
+                        ->getJson('/api/v1/dashboard/compliance-logs?limit=1');
 
         $response->assertStatus(200);
         $this->assertCount(1, $response->json('data.logs'));
@@ -274,7 +280,8 @@ class DashboardApiTest extends TestCase
      */
     public function test_get_audit_log_detail(): void
     {
-        $response = $this->getJson('/api/v1/audit-logs/' . $this->auditLogId);
+        $response = $this->actingAs($this->adminUser)
+                        ->getJson('/api/v1/dashboard/audit-logs/' . $this->auditLogId);
 
         $response->assertStatus(200)
                 ->assertJsonStructure([
@@ -328,6 +335,8 @@ class DashboardApiTest extends TestCase
                         'page',
                         'limit',
                         'total_pages',
+                        'has_prev',
+                        'has_next',
                     ]
                 ]);
     }
@@ -386,8 +395,8 @@ class DashboardApiTest extends TestCase
 
     public function test_journals_with_search(): void
     {
-        // Search by signer name "John"
-        $response = $this->getJson('/api/v1/journals?search=John');
+        // Search by notary name or venue_state
+        $response = $this->getJson('/api/v1/journals?search=CA');
 
         $response->assertStatus(200);
         $this->assertGreaterThan(0, $response->json('meta.total'));
@@ -414,13 +423,17 @@ class DashboardApiTest extends TestCase
         ]);
 
         DB::table('journal_entries')->insert([
-            'id' => Str::uuid()->toString(),
-            'notary_id' => $otherNotary->id,
-            'venue_state' => 'TX',
-            'venue_county' => 'Austin',
+            'id'             => Str::uuid()->toString(),
+            'notary_id'      => $otherNotary->id,
+            'venue_state'    => 'TX',
+            'venue_county'   => 'Austin',
             'execution_date' => '2026-03-20 10:00:00',
-            'status' => 'completed',
-            'notarial_fee' => 50.00,
+            'status'         => 'completed',
+            'notarial_fee'   => 50.00,
+            'thumbprint_waived' => false,
+            'is_holiday'     => false,
+            'created_at'     => now(),
+            'updated_at'     => now(),
         ]);
 
         // Request as the first notary
@@ -428,10 +441,10 @@ class DashboardApiTest extends TestCase
                         ->getJson('/api/v1/journals');
 
         $response->assertStatus(200);
-        
+
         // Total should be 3 (from setUp), not including the one from otherNotary
         $this->assertEquals(3, $response->json('meta.total'));
-        
+
         // Ensure none of the entries belong to the other notary
         $data = $response->json('data');
         foreach ($data as $entry) {
@@ -451,8 +464,8 @@ class DashboardApiTest extends TestCase
         $response = $this->actingAs($this->notaryUser)
                         ->getJson('/api/v1/dashboard/kpi-summary');
 
-        // Once auth middleware is active, this should be assertStatus(403)
-        $response->assertSuccessful();
+        // Middleware checkRole:1,2 blocks notary (id_role=3)
+        $response->assertStatus(403);
     }
 
     /**
@@ -484,7 +497,8 @@ class DashboardApiTest extends TestCase
     public function test_dashboard_reset_view(): void
     {
         // Default call without filters returns all data
-        $response = $this->getJson('/api/v1/dashboard/kpi-summary');
+        $response = $this->actingAs($this->adminUser)
+                        ->getJson('/api/v1/dashboard/kpi-summary');
 
         $response->assertStatus(200);
         $this->assertEquals(3, $response->json('data.total_entries')); 

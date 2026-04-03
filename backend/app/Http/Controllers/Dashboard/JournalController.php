@@ -3,225 +3,79 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Services\JournalService;
+use App\Models\JournalEntry;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class JournalController extends Controller
 {
+    public function __construct(protected JournalService $service) {}
+
     /**
      * API #6: GET /api/v1/journals
-     *
-     * Danh sách journal phân trang, hỗ trợ multi-filter và role-based.
-     * - Admin/Compliance: thấy tất cả
-     * - Notary: chỉ thấy bản ghi của mình
-     *
-     * Query params: page, limit, search, venue_state, status, risk_flag,
-     *               notary_id, start_date, end_date
+     * Danh sách phân trang, multi-filter, role-based.
      */
     public function index(Request $request)
     {
-        $page   = max(1, (int) $request->query('page', 1));
-        $limit  = min(50, max(1, (int) $request->query('limit', 10)));
-        $offset = ($page - 1) * $limit;
+        $filters = $request->only([
+            'page',
+            'limit',
+            'search',
+            'venue_state',
+            'status',
+            'risk_flag',
+            'notary_id',
+            'start_date',
+            'end_date',
+            'act_type',
+            'is_holiday',
+        ]);
 
-        $query = DB::table('journal_entries as je')
-            ->join('users as u', 'u.id', '=', 'je.notary_id')
-            ->leftJoin('signers as s', 's.journal_entry_id', '=', 'je.id')
-            ->select([
-                'je.id as entry_id',
-                'je.execution_date',
-                'u.full_name as notary_name',
-                'je.notarial_fee as fee',
-                'je.status',
-                'je.risk_flag',
-                'je.venue_state',
-                'je.venue_county',
-                'je.is_holiday',
-                's.full_name as signer_name',
-            ])
-            ->groupBy(
-                'je.id', 'je.execution_date', 'u.full_name',
-                'je.notarial_fee', 'je.status', 'je.risk_flag',
-                'je.venue_state', 'je.venue_county', 'je.is_holiday',
-                's.full_name'
-            );
-
-        // ── Role-based filtering ────────────────────────────────
-        $user = $request->user();
-        if ($user) {
-            // id_role: Notary (giả sử id_role != 1 và != 2 = notary)
-            // Admin = 1, Compliance = 2, Notary = 3 (hoặc theo convention)
-            if (! in_array($user->id_role, [1, 2])) {
-                $query->where('je.notary_id', $user->id);
-            }
-        }
-
-        // ── Search (by Entry ID or partial match) ───────────────
-        if ($request->filled('search')) {
-            $search = '%' . $request->search . '%';
-            $query->where(function ($q) use ($search) {
-                $q->where('je.id', 'LIKE', $search)
-                  ->orWhere('u.full_name', 'LIKE', $search)
-                  ->orWhere('s.full_name', 'LIKE', $search);
-            });
-        }
-
-        // ── Filters ─────────────────────────────────────────────
-        if ($request->filled('venue_state')) {
-            $query->where('je.venue_state', $request->venue_state);
-        }
-        if ($request->filled('status')) {
-            $query->where('je.status', $request->status);
-        }
-        if ($request->filled('risk_flag')) {
-            $query->where('je.risk_flag', $request->risk_flag);
-        }
-        if ($request->filled('notary_id')) {
-            $query->where('je.notary_id', $request->notary_id);
-        }
-        if ($request->filled('start_date')) {
-            $query->whereDate('je.execution_date', '>=', $request->start_date);
-        }
-        if ($request->filled('end_date')) {
-            $query->whereDate('je.execution_date', '<=', $request->end_date);
-        }
-
-        // ── Pagination ──────────────────────────────────────────
-        // Count total from a subquery to handle GROUP BY correctly
-        $countQuery = DB::table(DB::raw("({$query->toSql()}) as sub"))
-            ->mergeBindings($query);
-        $total = $countQuery->count();
-
-        $totalPages = (int) ceil($total / $limit);
-
-        $data = $query
-            ->orderBy('je.execution_date', 'desc')
-            ->offset($offset)
-            ->limit($limit)
-            ->get();
+        $result = $this->service->listJournals($filters, $request->user());
 
         return response()->json([
             'success' => true,
-            'data'    => $data,
-            'meta'    => [
-                'total'       => $total,
-                'page'        => $page,
-                'limit'       => $limit,
-                'total_pages' => $totalPages,
-                'has_prev'    => $page > 1,
-                'has_next'    => $page < $totalPages,
-            ],
-        ]);
+            'message' => 'Lấy danh sách journal thành công.',
+            'data'    => $result['data'],
+            'meta'    => $result['meta'],
+        ], 200);
     }
 
     /**
      * API #7: GET /api/v1/journals/{id}
-     *
-     * Lấy toàn bộ thông tin chi tiết của một hồ sơ nhật ký.
-     * Join: journal_entries + signers + biometric_data + fee_breakdowns
+     * Chi tiết một journal entry kèm signers + fee breakdown.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
-        // ── Journal entry base info ─────────────────────────────
-        $entry = DB::table('journal_entries as je')
-            ->join('users as u', 'u.id', '=', 'je.notary_id')
-            ->where('je.id', $id)
-            ->select([
-                'je.id',
-                'je.notary_id',
-                'u.full_name as notary_name',
-                'je.execution_date',
-                'je.venue_state',
-                'je.venue_county',
-                'je.status',
-                'je.notarial_fee',
-                'je.is_holiday',
-                'je.holiday_name',
-                'je.holiday_type',
-                'je.document_description',
-                'je.risk_flag',
-                'je.verification_method',
-                'je.thumbprint_waived',
-            ])
-            ->first();
+        $result = $this->service->getJournalDetail($id, $request->user());
 
-        if (! $entry) {
+        if ($result === false) {
             return response()->json([
                 'success' => false,
                 'message' => 'Journal entry not found',
             ], 404);
         }
 
-        // ── Signers + biometric data ────────────────────────────
-        $signers = DB::table('signers as s')
-            ->leftJoin('biometric_data as bd', 'bd.signer_id', '=', 's.id')
-            ->where('s.journal_entry_id', $id)
-            ->select([
-                's.id as signer_id',
-                's.full_name',
-                's.email',
-                's.phone',
-                's.address',
-                's.id_type',
-                's.id_number',
-                's.id_issuing_authority',
-                's.id_expiration_date',
-                's.customer_notes',
-                'bd.signature_image',
-                'bd.thumbprint_image',
-                'bd.biometric_match_hash',
-                'bd.capture_device_id',
-                'bd.capture_location',
-            ])
-            ->get();
-
-        // ── Fee breakdown ───────────────────────────────────────
-        $fees = DB::table('fee_breakdowns')
-            ->where('journal_entry_id', $id)
-            ->select([
-                'base_notarial_fee',
-                'service_fee',
-                'travel_fee',
-                'convenience_fee',
-                'rush_fee',
-                'holiday_fee',
-                'total_amount',
-                'notary_share',
-                'company_share',
-            ])
-            ->first();
+        if ($result === 'forbidden') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Forbidden. You do not have permission to access this resource.',
+            ], 403);
+        }
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'id'                    => $entry->id,
-                'notary_id'             => $entry->notary_id,
-                'notary_name'           => $entry->notary_name,
-                'execution_date'        => $entry->execution_date,
-                'venue_state'           => $entry->venue_state,
-                'venue_county'          => $entry->venue_county,
-                'status'                => $entry->status,
-                'notarial_fee'          => $entry->notarial_fee,
-                'is_holiday'            => (bool) $entry->is_holiday,
-                'holiday_name'          => $entry->holiday_name,
-                'holiday_type'          => $entry->holiday_type,
-                'document_description'  => $entry->document_description,
-                'risk_flag'             => $entry->risk_flag,
-                'verification_method'   => $entry->verification_method,
-                'thumbprint_waived'     => (bool) $entry->thumbprint_waived,
-                'signers'               => $signers,
-                'fee_breakdown'         => $fees,
-            ],
+            'data'    => $result,
         ]);
     }
 
     /**
      * API #5: PATCH /api/v1/journals/{id}/waive-thumbprint
-     *
-     * Admin duyệt miễn trừ yêu cầu vân tay cho hồ sơ.
      * Body: { "action": "WAIVE", "notes": "..." }
-     * Cập nhật thumbprint_waived = 1, ghi audit log.
      */
     public function waiveThumbprint(Request $request, string $id)
     {
@@ -230,47 +84,261 @@ class JournalController extends Controller
             'notes'  => 'nullable|string|max:1000',
         ]);
 
-        // ── Kiểm tra entry tồn tại ────────────────────────────
-        $entry = DB::table('journal_entries')->where('id', $id)->first();
+        $success = $this->service->waiveThumbprint(
+            id: $id,
+            notes: $request->input('notes', ''),
+            initiator: $request->user(),
+        );
 
-        if (! $entry) {
+        if (!$success) {
             return response()->json([
                 'success' => false,
                 'message' => 'Journal entry not found',
             ], 404);
         }
 
-        // ── Lưu trạng thái trước khi thay đổi (cho audit log) ──
-        $before = json_encode([
-            'thumbprint_waived' => (bool) $entry->thumbprint_waived,
-        ]);
-
-        // ── Cập nhật thumbprint_waived ──────────────────────────
-        DB::table('journal_entries')
-            ->where('id', $id)
-            ->update(['thumbprint_waived' => 1]);
-
-        $after = json_encode([
-            'thumbprint_waived' => true,
-            'notes'             => $request->input('notes', ''),
-        ]);
-
-        // ── Ghi audit log ───────────────────────────────────────
-        $now = now()->toIso8601String();
-        DB::table('audit_logs')->insert([
-            'id'                    => Str::uuid(),
-            'timestamp'             => $now,
-            'initiator_name'        => $request->user()->full_name ?? 'SYSTEM',
-            'action'                => 'WAIVE_THUMBPRINT',
-            'resource_id'           => $id,
-            'change_details_before' => $before,
-            'change_details_after'  => $after,
-            'flags'                 => 'INFO',
-        ]);
-
         return response()->json([
             'success' => true,
             'message' => 'Thumbprint waived successfully',
         ]);
+    }
+
+
+    // TranCongAnh - Journal export
+    /**
+     * =========================================================
+     * Chức năng: Tải xuống PDF của 1 journal entry
+     * Màn hình: SC_009 - Journal Export & Retention
+     * Method: GET
+     * Endpoint: /api/v1/journals/{id}/export-pdf
+     *
+     * Mô tả:
+     * - Kiểm tra journal có tồn tại hay không
+     * - Tạo file export giả lập để test
+     * - Trả về link tải file cho frontend
+     * =========================================================
+     */
+    public function exportPdf(string $id): JsonResponse
+    {
+        try {
+            $journal = JournalEntry::query()->find($id);
+
+            if (!$journal) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Journal not found.',
+                    'data' => null,
+                    'meta' => null,
+                    'errors' => [
+                        'id' => ['Journal not found.']
+                    ]
+                ], 404);
+            }
+
+            $journalNo = $this->buildJournalNo($journal->id, $journal->execution_date);
+            $fileName = "JournalEntry_{$journalNo}.pdf";
+            $filePath = "exports/journals/{$fileName}";
+
+            // Mock nội dung file PDF để test API trước
+            // Hiện đang ghi file text với đuôi .pdf cho đúng flow tài liệu
+            $content = implode(PHP_EOL, [
+                'Journal Entry Export',
+                "Journal ID: {$journal->id}",
+                "Journal No: {$journalNo}",
+                "Status: {$journal->status}",
+                "Execution Date: {$journal->execution_date}",
+                "Venue State: {$journal->venue_state}",
+                "Venue County: {$journal->venue_county}",
+                "Generated At: " . now()->toDateTimeString(),
+                'Watermark: Official System Extract',
+            ]);
+
+            Storage::disk('public')->put($filePath, $content);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'PDF generated successfully.',
+                'data' => [
+                    'download_url' => asset("storage/{$filePath}"),
+                    'file_name' => $fileName,
+                    'generated_at' => Carbon::now()->format('Y-m-d\TH:i:s\Z'),
+                    'watermark' => 'Official System Extract',
+                ],
+                'meta' => null,
+                'errors' => null,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'PDF generation failed.',
+                'data' => null,
+                'meta' => null,
+                'errors' => [
+                    'exception' => $e->getMessage()
+                ]
+            ], 500);
+        }
+    }
+
+    /**
+     * =========================================================
+     * Chức năng: Tạo job export journal hàng loạt
+     * Màn hình: SC_009 - Journal Export & Retention
+     * Method: POST
+     * Endpoint: /api/v1/journals/export
+     *
+     * Mô tả:
+     * - Nhận filter từ frontend
+     * - Đếm số journal phù hợp
+     * - Tạo job export giả lập
+     * - Trả về job_id để frontend polling tiếp
+     * =========================================================
+     */
+    public function export(Request $request): JsonResponse
+    {
+        try {
+            $validated = $request->validate([
+                'from_date' => ['nullable', 'date'],
+                'to_date' => ['nullable', 'date'],
+                'notary_id' => ['nullable', 'string'],
+                'state' => ['nullable', 'string'],
+                'format' => ['required', 'in:csv,pdf'],
+            ]);
+
+            $query = JournalEntry::query();
+
+            if (!empty($validated['from_date'])) {
+                $query->whereDate('execution_date', '>=', $validated['from_date']);
+            }
+
+            if (!empty($validated['to_date'])) {
+                $query->whereDate('execution_date', '<=', $validated['to_date']);
+            }
+
+            if (!empty($validated['notary_id'])) {
+                $query->where('notary_id', $validated['notary_id']);
+            }
+
+            if (!empty($validated['state'])) {
+                $query->where('venue_state', $validated['state']);
+            }
+
+            $recordCount = $query->count();
+            $jobId = 'EXP-' . now()->format('YmdHis') . '-001';
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Export job created successfully.',
+                'data' => [
+                    'job_id' => $jobId,
+                    'status' => 'PROCESSING',
+                    'format' => $validated['format'],
+                    'record_count' => $recordCount,
+                    'is_async' => true,
+                ],
+                'meta' => null,
+                'errors' => null,
+            ], 201);
+        } catch (Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Export job creation failed.',
+                'data' => null,
+                'meta' => null,
+                'errors' => [
+                    'exception' => $e->getMessage()
+                ]
+            ], 500);
+        }
+    }
+
+    /**
+     * =========================================================
+     * Chức năng: Kiểm tra trạng thái export job
+     * Màn hình: SC_009 - Journal Export & Retention
+     * Method: GET
+     * Endpoint: /api/v1/journals/export/{jobId}
+     *
+     * Mô tả:
+     * - Nhận job_id từ frontend
+     * - Trả trạng thái PROCESSING hoặc COMPLETED
+     * - Nếu COMPLETED thì trả download_url
+     *
+     * Ghi chú:
+     * - Đây là bản mock để test flow frontend
+     * - Chưa dùng DB/table export_jobs
+     * =========================================================
+     */
+    public function exportStatus(string $jobId): JsonResponse
+    {
+        try {
+            // Mock: nếu jobId chứa chữ PROCESSING thì trả đang xử lý
+            if (str_contains(strtoupper($jobId), 'PROCESSING')) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Export job is still processing.',
+                    'data' => [
+                        'job_id' => $jobId,
+                        'status' => 'PROCESSING',
+                        'format' => 'csv',
+                        'record_count' => 742,
+                        'download_url' => null,
+                    ],
+                    'meta' => null,
+                    'errors' => null,
+                ]);
+            }
+
+            // Mock completed
+            $fileName = "journal-export-{$jobId}.csv";
+            $filePath = "exports/journals/{$fileName}";
+
+            $content = "id,notary_id,status,execution_date" . PHP_EOL;
+            $content .= "1,NOTARY001,completed,2026-03-01" . PHP_EOL;
+            $content .= "2,NOTARY002,pending,2026-03-02" . PHP_EOL;
+
+            Storage::disk('public')->put($filePath, $content);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Export file is ready.',
+                'data' => [
+                    'job_id' => $jobId,
+                    'status' => 'COMPLETED',
+                    'format' => 'csv',
+                    'record_count' => 742,
+                    'download_url' => asset("storage/{$filePath}"),
+                    'generated_at' => Carbon::now()->format('Y-m-d\TH:i:s\Z'),
+                ],
+                'meta' => null,
+                'errors' => null,
+            ]);
+        } catch (Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to get export status.',
+                'data' => null,
+                'meta' => null,
+                'errors' => [
+                    'exception' => $e->getMessage()
+                ]
+            ], 500);
+        }
+    }
+
+    /**
+     * =========================================================
+     * Chức năng: Tạo journal number để hiển thị file export
+     * =========================================================
+     */
+    private function buildJournalNo(string $id, $executionDate): string
+    {
+        $year = $executionDate
+            ? Carbon::parse($executionDate)->format('Y')
+            : now()->format('Y');
+
+        $suffix = strtoupper(substr(str_replace('-', '', $id), 0, 4));
+
+        return "JE-{$year}-{$suffix}";
     }
 }
