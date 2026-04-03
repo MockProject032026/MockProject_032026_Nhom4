@@ -1,6 +1,3 @@
-// Cấu hình URL gốc của Backend Laravel
-const BASE_URL = 'http://localhost:8000/api/v1';
-
 window.journalApi = {
     /**
      * Gọi API lấy danh sách Journal Entries (có phân trang và bộ lọc)
