@@ -335,6 +335,8 @@ class DashboardApiTest extends TestCase
                         'page',
                         'limit',
                         'total_pages',
+                        'has_prev',
+                        'has_next',
                     ]
                 ]);
     }
@@ -393,8 +395,8 @@ class DashboardApiTest extends TestCase
 
     public function test_journals_with_search(): void
     {
-        // Search by signer name "John"
-        $response = $this->getJson('/api/v1/journals?search=John');
+        // Search by notary name or venue_state
+        $response = $this->getJson('/api/v1/journals?search=CA');
 
         $response->assertStatus(200);
         $this->assertGreaterThan(0, $response->json('meta.total'));
@@ -421,13 +423,17 @@ class DashboardApiTest extends TestCase
         ]);
 
         DB::table('journal_entries')->insert([
-            'id' => Str::uuid()->toString(),
-            'notary_id' => $otherNotary->id,
-            'venue_state' => 'TX',
-            'venue_county' => 'Austin',
+            'id'             => Str::uuid()->toString(),
+            'notary_id'      => $otherNotary->id,
+            'venue_state'    => 'TX',
+            'venue_county'   => 'Austin',
             'execution_date' => '2026-03-20 10:00:00',
-            'status' => 'completed',
-            'notarial_fee' => 50.00,
+            'status'         => 'completed',
+            'notarial_fee'   => 50.00,
+            'thumbprint_waived' => false,
+            'is_holiday'     => false,
+            'created_at'     => now(),
+            'updated_at'     => now(),
         ]);
 
         // Request as the first notary
@@ -435,10 +441,10 @@ class DashboardApiTest extends TestCase
                         ->getJson('/api/v1/journals');
 
         $response->assertStatus(200);
-        
+
         // Total should be 3 (from setUp), not including the one from otherNotary
         $this->assertEquals(3, $response->json('meta.total'));
-        
+
         // Ensure none of the entries belong to the other notary
         $data = $response->json('data');
         foreach ($data as $entry) {
