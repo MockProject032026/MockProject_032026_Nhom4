@@ -77,7 +77,6 @@ class BiometricController extends Controller
             ], 422);
         }
 
-        // ← Mỗi signer chỉ có 1 bản ghi — nếu có rồi thì update, chưa có thì tạo mới
         $bio = BiometricData::updateOrCreate(
             ['signer_id' => $validated['signer_id']],
             [
@@ -240,6 +239,20 @@ class BiometricController extends Controller
             'message' => 'Notary biometrics deleted successfully',
             'meta'    => null,
             'errors'  => null,
+        ]);
+    }
+
+    public function consentStatement(): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'data'    => [
+                'text'           => 'By providing my signature and thumbprint, I hereby consent to the notarization of the described document.',
+                'version'        => 'v1.0',
+                'effective_date' => '2026-01-01',
+            ],
+            'meta'   => null,
+            'errors' => null,
         ]);
     }
 
