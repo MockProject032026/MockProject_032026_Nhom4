@@ -3,16 +3,15 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Services\DashboardService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class DashboardController extends Controller
 {
+    public function __construct(protected DashboardService $service) {}
+
     /**
      * API #1: GET /api/v1/dashboard/kpi-summary
-     *
-     * Lấy tổng journal, hồ sơ thiếu, count theo state và alerts.
      * Filters: venue_state, notary_id, start_date, end_date
      */
     public function kpiSummary(Request $request)
@@ -94,9 +93,7 @@ class DashboardController extends Controller
 
     /**
      * API #2: GET /api/v1/dashboard/compliance-logs
-     *
-     * Lấy 3-5 sự kiện compliance gần nhất.
-     * Query param: limit (default 5)
+     * Query param: limit (default 5, max 10)
      */
     public function complianceLogs(Request $request)
     {
@@ -143,15 +140,13 @@ class DashboardController extends Controller
     }
 
     /**
-     * API #3: GET /api/v1/audit-logs/{id}
-     *
-     * Lấy chi tiết "Before" và "After" của một log sự kiện cụ thể.
+     * API #3: GET /api/v1/dashboard/audit-logs/{id}
      */
     public function auditLogDetail(string $id)
     {
-        $log = DB::table('audit_logs')->where('id', $id)->first();
+        $data = $this->service->getAuditLogDetail($id);
 
-        if (! $log) {
+        if ($data === false) {
             return response()->json([
                 'success' => false,
                 'message' => 'Audit log not found',
@@ -160,81 +155,31 @@ class DashboardController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'id'                    => $log->id,
-                'timestamp'             => $log->timestamp,
-                'initiator_name'        => $log->initiator_name,
-                'action'                => $log->action,
-                'resource_id'           => $log->resource_id,
-                'flags'                 => $log->flags,
-                'change_details_before' => json_decode($log->change_details_before),
-                'change_details_after'  => json_decode($log->change_details_after),
-            ],
+            'data'    => $data,
         ]);
     }
 
     /**
      * API #4: POST /api/v1/notaries/reminders/missing-signatures
-     *
-     * Gửi email nhắc nhở hàng loạt cho Notary bổ sung chữ ký.
      * Body: { "target": "ALL" } hoặc { "entry_ids": [...] }
-     * Sau khi gửi, insert log vào audit_logs.
      */
     public function sendMissingSignatureReminders(Request $request)
     {
         $request->validate([
-            'target'    => 'nullable|string|in:ALL',
-            'entry_ids' => 'nullable|array',
-            'entry_ids.*' => 'uuid',
+            'target'      => 'nullable|string|in:ALL',
+            'entry_ids'   => 'nullable|array',
+            'entry_ids.*' => 'string',
         ]);
 
-        // ── Tìm các entries bị thiếu signature ─────────────────
-        $query = DB::table('journal_entries as je')
-            ->join('signers as s', 's.journal_entry_id', '=', 'je.id')
-            ->leftJoin('biometric_data as bd', 'bd.signer_id', '=', 's.id')
-            ->join('users as u', 'u.id', '=', 'je.notary_id')
-            ->where(function ($q) {
-                $q->whereNull('bd.signature_image')
-                  ->orWhere('bd.signature_image', '=', '');
-            });
-
-        // Nếu không phải ALL, chỉ lọc theo entry_ids cụ thể
-        if ($request->input('target') !== 'ALL' && $request->filled('entry_ids')) {
-            $query->whereIn('je.id', $request->entry_ids);
-        }
-
-        $affectedEntries = $query
-            ->select([
-                'je.id as entry_id',
-                'u.id as notary_id',
-                'u.email as notary_email',
-                'u.full_name as notary_name',
-            ])
-            ->distinct()
-            ->get();
-
-        $emailsSentCount = $affectedEntries->unique('notary_id')->count();
-
-        // ── Ghi audit log ───────────────────────────────────────
-        $now = now()->toIso8601String();
-        DB::table('audit_logs')->insert([
-            'id'                   => Str::uuid(),
-            'timestamp'            => $now,
-            'initiator_name'       => $request->user()->full_name ?? 'SYSTEM',
-            'action'               => 'REMINDER_EMAIL_SENT',
-            'resource_id'          => 'MISSING_SIGNATURES',
-            'change_details_after' => json_encode([
-                'emails_sent_count' => $emailsSentCount,
-                'entry_ids'         => $affectedEntries->pluck('entry_id')->unique()->values(),
-            ]),
-            'flags'                => 'INFO',
-        ]);
+        $emailsSentCount = $this->service->sendMissingSignatureReminders(
+            target: $request->input('target'),
+            entryIds: $request->input('entry_ids', []),
+            initiator: $request->user(),
+        );
 
         return response()->json([
             'success' => true,
-            'data' => [
-                'emails_sent_count' => $emailsSentCount,
-            ],
+            'data'    => ['emails_sent_count' => $emailsSentCount],
         ]);
     }
 }
