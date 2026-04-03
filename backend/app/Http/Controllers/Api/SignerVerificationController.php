@@ -179,7 +179,7 @@ class SignerVerificationController extends Controller
     private function updateStep1(Request $request, JournalEntry $entry): void
     {
         $validated = $request->validate([
-            'full_legal_name' => 'required|string|max:255',
+            'full_legal_name' => 'required|string|max:255|regex:/^[\pL\s\'\-\.]+$/u',
             'residential_address' => 'nullable|string|max:500',
         ]);
 

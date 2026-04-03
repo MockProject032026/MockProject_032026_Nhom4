@@ -112,6 +112,7 @@ Route::prefix('v1')->group(function () {
     | Notary Biometrics
     |--------------------------------------------------------------------------
     */
+    Route::get('consent-statement',                 [BiometricController::class, 'consentStatement']);
     Route::get('notaries/{notaryId}/biometrics',    [BiometricController::class, 'notaryBiometrics']);
     Route::post('notaries/{notaryId}/biometrics',   [BiometricController::class, 'storeNotaryBiometrics']);
     Route::delete('notaries/{notaryId}/biometrics', [BiometricController::class, 'destroyNotaryBiometrics']);
