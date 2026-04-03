@@ -38,13 +38,14 @@ class JournalController extends Controller
                 'je.venue_state',
                 'je.venue_county',
                 'je.is_holiday',
+                'je.act_type',
                 's.full_name as signer_name',
             ])
             ->groupBy(
                 'je.id', 'je.execution_date', 'u.full_name',
                 'je.notarial_fee', 'je.status', 'je.risk_flag',
                 'je.venue_state', 'je.venue_county', 'je.is_holiday',
-                's.full_name'
+                'je.act_type', 's.full_name'
             );
 
         // ── Role-based filtering ────────────────────────────────
@@ -76,6 +77,9 @@ class JournalController extends Controller
         }
         if ($request->filled('risk_flag')) {
             $query->where('je.risk_flag', $request->risk_flag);
+        }
+        if ($request->filled('act_type')) {
+            $query->where('je.act_type', $request->act_type);
         }
         if ($request->filled('notary_id')) {
             $query->where('je.notary_id', $request->notary_id);
@@ -121,7 +125,7 @@ class JournalController extends Controller
      * Lấy toàn bộ thông tin chi tiết của một hồ sơ nhật ký.
      * Join: journal_entries + signers + biometric_data + fee_breakdowns
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
         // ── Journal entry base info ─────────────────────────────
         $entry = DB::table('journal_entries as je')
@@ -136,6 +140,7 @@ class JournalController extends Controller
                 'je.venue_county',
                 'je.status',
                 'je.notarial_fee',
+                'je.act_type',
                 'je.is_holiday',
                 'je.holiday_name',
                 'je.holiday_type',
@@ -151,6 +156,15 @@ class JournalController extends Controller
                 'success' => false,
                 'message' => 'Journal entry not found',
             ], 404);
+        }
+
+        // ── Ownership check: Notary can only view own entries ───
+        $user = $request->user();
+        if ($user && ! in_array($user->id_role, [1, 2]) && $entry->notary_id !== $user->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Forbidden. You do not have permission to access this resource.',
+            ], 403);
         }
 
         // ── Signers + biometric data ────────────────────────────
@@ -203,6 +217,7 @@ class JournalController extends Controller
                 'venue_county'          => $entry->venue_county,
                 'status'                => $entry->status,
                 'notarial_fee'          => $entry->notarial_fee,
+                'act_type'              => $entry->act_type,
                 'is_holiday'            => (bool) $entry->is_holiday,
                 'holiday_name'          => $entry->holiday_name,
                 'holiday_type'          => $entry->holiday_type,

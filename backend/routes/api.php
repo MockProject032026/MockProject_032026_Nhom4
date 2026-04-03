@@ -29,11 +29,13 @@ Route::prefix('v1')->group(function () {
     Route::get('audit-logs/{log_id}',                            [AuditLogController::class, 'show']);
     Route::post('audit-logs/export',                             [AuditLogController::class, 'export']);
 
-    // ── Dashboard APIs ──────────────────────────────────────
-    Route::get('dashboard/kpi-summary',                          [DashboardController::class, 'kpiSummary']);
-    Route::get('dashboard/compliance-logs',                      [DashboardController::class, 'complianceLogs']);
-    Route::get('audit-logs/{id}',                                [DashboardController::class, 'auditLogDetail']);
-    Route::post('notaries/reminders/missing-signatures',         [DashboardController::class, 'sendMissingSignatureReminders']);
+    // ── Dashboard APIs (Admin & Compliance only) ──────────
+    Route::middleware(['auth', 'checkRole:1,2'])->group(function () {
+        Route::get('dashboard/kpi-summary',                          [DashboardController::class, 'kpiSummary']);
+        Route::get('dashboard/compliance-logs',                      [DashboardController::class, 'complianceLogs']);
+        Route::get('dashboard/audit-logs/{id}',                       [DashboardController::class, 'auditLogDetail']);
+        Route::post('notaries/reminders/missing-signatures',         [DashboardController::class, 'sendMissingSignatureReminders']);
+    });
 
     // ── Journal APIs ────────────────────────────────────────
     Route::get('journals',                                       [JournalController::class, 'index']);

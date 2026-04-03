@@ -16,4 +16,9 @@ class AuditLog extends Model
         'resource_id', 'change_details_before',
         'change_details_after', 'flags',
     ];
+
+    protected $casts = [
+        'change_details_before' => 'json',
+        'change_details_after' => 'json',
+    ];
 }
