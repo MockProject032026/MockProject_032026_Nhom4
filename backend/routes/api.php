@@ -84,8 +84,10 @@ Route::prefix('v1')->group(function () {
         Route::get('dashboard/kpi-summary',        [DashboardController::class, 'kpiSummary']);
         Route::get('dashboard/compliance-logs',    [DashboardController::class, 'complianceLogs']);
         Route::get('dashboard/audit-logs/{id}',    [DashboardController::class, 'auditLogDetail']);
-        Route::post('notaries/reminders/missing-signatures',
-                                                    [DashboardController::class, 'sendMissingSignatureReminders']);
+        Route::post(
+            'notaries/reminders/missing-signatures',
+            [DashboardController::class, 'sendMissingSignatureReminders']
+        );
     });
 
     /*
@@ -95,8 +97,10 @@ Route::prefix('v1')->group(function () {
     */
     Route::get('journals',                  [JournalController::class, 'index']);
     Route::get('journals/{id}',             [JournalController::class, 'show']);
-    Route::patch('journals/{id}/waive-thumbprint',
-                                                [JournalController::class, 'waiveThumbprint']);
+    Route::patch(
+        'journals/{id}/waive-thumbprint',
+        [JournalController::class, 'waiveThumbprint']
+    );
 
     /*
     |--------------------------------------------------------------------------
