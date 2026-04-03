@@ -2,10 +2,12 @@
 const BASE_URL = 'http://localhost:8000/api/v1';
 
 window.dashboardApi = {
-    // 1. Lấy dữ liệu thống kê (KPI Summary)
-    getKpiSummary: async function() {
+    // 1. Cho phép truyền params bộ lọc
+    getKpiSummary: async function(params = {}) {
         try {
-            const response = await fetch(`${BASE_URL}/dashboard/kpi-summary`);
+            const queryString = new URLSearchParams(params).toString();
+            const url = `${BASE_URL}/dashboard/kpi-summary${queryString ? '?' + queryString : ''}`;
+            const response = await fetch(url);
             if (!response.ok) throw new Error('Network response was not ok');
             return await response.json();
         } catch (error) {
@@ -14,10 +16,12 @@ window.dashboardApi = {
         }
     },
 
-    // 2. Lấy danh sách Logs (Compliance Logs)
-    getComplianceLogs: async function(limit = 5) {
+    // 2. Cho phép truyền params phân trang (page, limit)
+    getComplianceLogs: async function(params = {}) {
         try {
-            const response = await fetch(`${BASE_URL}/dashboard/compliance-logs?limit=${limit}`);
+            const queryString = new URLSearchParams(params).toString();
+            const url = `${BASE_URL}/dashboard/compliance-logs${queryString ? '?' + queryString : ''}`;
+            const response = await fetch(url);
             if (!response.ok) throw new Error('Network response was not ok');
             return await response.json();
         } catch (error) {
