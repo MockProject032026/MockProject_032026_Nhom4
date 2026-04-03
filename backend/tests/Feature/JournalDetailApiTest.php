@@ -251,7 +251,7 @@ class JournalDetailApiTest extends TestCase
                 ->assertJsonPath('data.act_type', 'Acknowledgment')
                 ->assertJsonPath('data.venue_state', 'CA')
                 ->assertJsonPath('data.venue_county', 'Los Angeles')
-                ->assertJsonPath('data.notarial_fee', 15.00)
+                ->assertJsonPath('data.notarial_fee', 15)
                 ->assertJsonPath('data.notary_name', 'Emily Carter')
                 ->assertJsonPath('data.status', 'draft');
 
@@ -262,7 +262,7 @@ class JournalDetailApiTest extends TestCase
 
         // Verify fee breakdown
         $this->assertNotNull($response->json('data.fee_breakdown'));
-        $this->assertEquals(15.00, $response->json('data.fee_breakdown.total_amount'));
+        $this->assertEquals(15, $response->json('data.fee_breakdown.total_amount'));
     }
 
     /**
