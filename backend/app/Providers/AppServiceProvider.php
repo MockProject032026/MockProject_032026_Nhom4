@@ -11,7 +11,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind('db.connector.sqlsrv', function ($app) {
+            return new class extends \Illuminate\Database\Connectors\SqlServerConnector {
+                protected $options = [];
+            };
+        });
     }
 
     /**

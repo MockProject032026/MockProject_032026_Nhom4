@@ -178,9 +178,13 @@ class DashboardApiTest extends TestCase
                 ->assertJsonStructure([
                     'success',
                     'data' => [
-                        'total_entries',
-                        'incomplete',
-                        'entries_by_state',
+                        'kpi' => [
+                            'total_entries',
+                            'incomplete',
+                        ],
+                        'charts' => [
+                            'by_state',
+                        ],
                         'alerts',
                     ]
                 ]);
@@ -198,7 +202,7 @@ class DashboardApiTest extends TestCase
                 ->assertJson(['success' => true]);
 
         // Should only contain CA entries (2 entries)
-        $this->assertEquals(2, $response->json('data.total_entries'));
+        $this->assertEquals(2, $response->json('data.kpi.total_entries'));
     }
 
     /**
@@ -225,7 +229,7 @@ class DashboardApiTest extends TestCase
         $response->assertStatus(200)
                 ->assertJson(['success' => true]);
         
-        $this->assertEquals(1, $response->json('data.total_entries'));
+        $this->assertEquals(1, $response->json('data.kpi.total_entries'));
     }
 
     // ────────────────────────────────────────────────────────────
@@ -501,6 +505,6 @@ class DashboardApiTest extends TestCase
                         ->getJson('/api/v1/dashboard/kpi-summary');
 
         $response->assertStatus(200);
-        $this->assertEquals(3, $response->json('data.total_entries')); 
+        $this->assertEquals(3, $response->json('data.kpi.total_entries')); 
     }
 }

@@ -106,13 +106,12 @@ return [
             'database' => env('DB_DATABASE', 'notary_management'),
             'username' => env('DB_USERNAME', ''),
             'password' => env('DB_PASSWORD', ''),
-            'charset' => 'utf8',
+            'charset' => env('DB_CHARSET', 'utf8'),
             'prefix' => '',
             'prefix_indexes' => true,
-            'options' => [
-                \PDO::ATTR_STRINGIFY_FETCHES => true,
-                \PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE => true,
-            ],
+            'encrypt' => env('DB_ENCRYPT', 'yes'),
+            'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'no'),
+            'options' => [],
         ],
 
     ],

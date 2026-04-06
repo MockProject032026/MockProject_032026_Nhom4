@@ -17,10 +17,18 @@ class DashboardController extends Controller
     public function kpiSummary(Request $request)
     {
         $filters = $request->only(['venue_state', 'notary_id', 'start_date', 'end_date']);
+<<<<<<< Updated upstream
 
         return response()->json([
             'success' => true,
             'data'    => $this->service->getKpiSummary($filters),
+=======
+        $data = $this->service->getKpiSummary($filters);
+
+        return response()->json([
+            'success' => true,
+            'data'    => $data,
+>>>>>>> Stashed changes
         ]);
     }
 
@@ -30,11 +38,25 @@ class DashboardController extends Controller
      */
     public function complianceLogs(Request $request)
     {
+<<<<<<< Updated upstream
         $limit = (int) $request->query('limit', 5);
 
         return response()->json([
             'success' => true,
             'data'    => $this->service->getComplianceLogs($limit),
+=======
+        $page  = max(1, (int) $request->query('page', 1));
+        $limit = min(10, max(1, (int) $request->query('limit', 5)));
+
+        $result = $this->service->getComplianceLogs($limit, $page);
+
+        return response()->json([
+            'success' => true,
+            'data'    => [
+                'logs' => $result['logs'],
+            ],
+            'meta'    => $result['meta']
+>>>>>>> Stashed changes
         ]);
     }
 
