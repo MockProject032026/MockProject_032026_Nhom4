@@ -109,10 +109,7 @@ return [
             'charset' => 'utf8',
             'prefix' => '',
             'prefix_indexes' => true,
-            'options' => [
-                \PDO::ATTR_STRINGIFY_FETCHES => true,
-                \PDO::SQLSRV_ATTR_FETCHES_NUMERIC_TYPE => true,
-            ],
+            'options' => [],
         ],
 
     ],

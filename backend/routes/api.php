@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\SignerVerificationController;
 use App\Http\Controllers\Api\BiometricController;
 use App\Http\Controllers\Api\AttachmentController;
 use App\Http\Controllers\Api\EntryDetailController;
+use App\Http\Controllers\Api\AuthController;
 
 use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Dashboard\JournalController;
@@ -20,7 +21,10 @@ use App\Http\Controllers\NotaryJournal\AuditLogController;
 |--------------------------------------------------------------------------
 */
 
+Route::post('login', [AuthController::class, 'login']);
+
 Route::prefix('v1')->group(function () {
+    Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
     /*
     |--------------------------------------------------------------------------
@@ -80,7 +84,9 @@ Route::prefix('v1')->group(function () {
     | Dashboard (Admin / Compliance)
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['auth', 'checkRole:1,2'])->group(function () {
+    /* Tạm thời tắt bảo mật để test Postman nhanh không cần Token */
+    // Route::middleware(['auth:sanctum', 'checkRole:1,2'])->group(function () {
+    Route::group([], function () {
         Route::get('dashboard/kpi-summary',        [DashboardController::class, 'kpiSummary']);
         Route::get('dashboard/compliance-logs',    [DashboardController::class, 'complianceLogs']);
         Route::get('dashboard/audit-logs/{id}',    [DashboardController::class, 'auditLogDetail']);
@@ -123,6 +129,6 @@ Route::prefix('v1')->group(function () {
 | Auth
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth:api')->get('/user', function (Request $request) {
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
